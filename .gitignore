@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+
+# Local database configuration
+app/config/config.local.php
+
+# Environment files
+.env
+.env.*
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+
+# IDE files
+.vscode/
+.idea/
+
+# Uploaded or generated files
+uploads/
+storage/
+cache/

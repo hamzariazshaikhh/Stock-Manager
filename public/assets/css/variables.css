@@ -1,0 +1,17 @@
+:root {
+    --color-primary: #2563eb;
+    --color-primary-dark: #1d4ed8;
+    --color-secondary: #475569;
+    --color-success: #166534;
+    --color-success-bg: #dcfce7;
+    --color-error: #991b1b;
+    --color-error-bg: #fee2e2;
+    --color-text: #1e293b;
+    --color-muted: #64748b;
+    --color-border: #cbd5e1;
+    --color-background: #f8fafc;
+    --color-surface: #ffffff;
+    --color-header: #0f172a;
+    --radius: 8px;
+    --shadow: 0 4px 14px rgb(15 23 42 / 8%);
+}
