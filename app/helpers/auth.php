@@ -25,6 +25,9 @@ function requireAuth(): int
         redirect('/login.php');
     }
 
+    $pdo = getDatabaseConnection();
+    refreshCurrentUserRole($pdo);
+
     return $userId;
 }
 
@@ -35,12 +38,23 @@ function redirectIfLoggedIn(): void
     }
 }
 
-function loginUser(int $userId): void
+function loginUser(int $userId, string $role): void
 {
+    if (!in_array($role, [
+        ROLE_OWNER,
+        ROLE_ADMIN,
+        ROLE_MANAGER,
+        ROLE_VIEWER,
+    ], true)) {
+        throw new RuntimeException('Invalid user role.');
+    }
+
     session_regenerate_id(true);
 
     $_SESSION['user_id'] = $userId;
+    $_SESSION['user_role'] = $role;
 }
+
 
 function logoutUser(): void
 {
@@ -61,4 +75,42 @@ function logoutUser(): void
     }
 
     session_destroy();
+}
+
+function refreshCurrentUserRole(PDO $pdo): void
+{
+    $userId = currentUserId();
+
+    if ($userId === null) {
+        return;
+    }
+
+    $statement = $pdo->prepare(
+        'SELECT role
+         FROM users
+         WHERE id = :user_id
+         LIMIT 1'
+    );
+
+    $statement->execute([
+        'user_id' => $userId,
+    ]);
+
+    $role = $statement->fetchColumn();
+
+    if (
+        !is_string($role)
+        || !in_array($role, [
+            ROLE_OWNER,
+            ROLE_ADMIN,
+            ROLE_MANAGER,
+            ROLE_VIEWER,
+        ], true)
+    ) {
+        logoutUser();
+
+        redirect('/login.php');
+    }
+
+    $_SESSION['user_role'] = $role;
 }

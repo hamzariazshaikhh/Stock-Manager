@@ -19,6 +19,9 @@ CREATE TABLE users (
     name VARCHAR(120) NOT NULL,
     email VARCHAR(191) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
+
+    role VARCHAR(20) NOT NULL DEFAULT 'owner',
+    
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
         ON UPDATE CURRENT_TIMESTAMP,
@@ -89,6 +92,9 @@ CREATE TABLE products (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
         ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    
+    KEY index_products_deleted_at (deleted_at),
 
     PRIMARY KEY (id),
 
@@ -99,6 +105,7 @@ CREATE TABLE products (
     KEY index_products_supplier_id (supplier_id),
     KEY index_products_name (name),
     KEY index_products_quantity (quantity),
+    KEY index_products_deleted_at (deleted_at),
 
     CONSTRAINT fk_products_user
         FOREIGN KEY (user_id)

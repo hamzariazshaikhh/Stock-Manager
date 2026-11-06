@@ -6,13 +6,24 @@ require_once __DIR__ . '/../../app/bootstrap.php';
 
 $userId = requireAuth();
 
+requirePermission(PERMISSION_VIEW_STOCK);
+
 $pdo = getDatabaseConnection();
 
 $movementRepository = new StockMovementRepository($pdo);
-$movements = $movementRepository->findAllByUser($userId);
+$perPage = 25;
+$page = currentPage();
 
-$pageTitle = 'Stock Movements';
-$activePage = 'stock';
+$totalMovements = $movementRepository->countByUser($userId);
+$totalPages = totalPages($totalMovements, $perPage);
+$page = min($page, $totalPages);
+
+$movements = $movementRepository->findPageByUser(
+    $userId,
+    $perPage,
+    paginationOffset($page, $perPage)
+);
+
 
 require_once __DIR__ . '/../../app/views/layout/header.php';
 ?>
@@ -26,12 +37,16 @@ require_once __DIR__ . '/../../app/views/layout/header.php';
         </p>
     </div>
 
+
+<?php if (hasPermission(PERMISSION_MANAGE_STOCK)): ?>
     <a
         class="button button-primary"
         href="<?= e(BASE_URL) ?>/stock/create.php"
     >
         Record Movement
     </a>
+<?php endif; ?>
+
 </section>
 
 <?php if ($movements === []): ?>
@@ -110,5 +125,12 @@ require_once __DIR__ . '/../../app/views/layout/header.php';
         </div>
     </section>
 <?php endif; ?>
+
+<?php
+$currentPage = $page;
+$pageCount = $totalPages;
+
+require __DIR__ . '/../../app/views/partials/pagination.php';
+?>
 
 <?php require_once __DIR__ . '/../../app/views/layout/footer.php'; ?>

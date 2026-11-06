@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../app/bootstrap.php';
 
 
 $userId = requireAuth();
+requirePermission(PERMISSION_MANAGE_CATEGORIES);
 $pdo = getDatabaseConnection();
 
 $repository = new CategoryRepository($pdo);

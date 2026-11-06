@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 const APP_NAME = 'Inventory Manager';
 const BASE_URL = '/Stock_manager/public';
-
+const MAX_STOCK_QUANTITY = 2000000000;
+const MAX_PRODUCT_DESCRIPTION_LENGTH = 5000;
 $localConfig = __DIR__ . '/config.local.php';
 
 if (is_file($localConfig)) {

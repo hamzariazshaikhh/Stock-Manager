@@ -5,15 +5,32 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../app/bootstrap.php';
 
 $userId = requireAuth();
+requirePermission(PERMISSION_VIEW_PRODUCTS);
 $pdo = getDatabaseConnection();
 
 $productRepository = new ProductRepository($pdo);
-$products = $productRepository->findAllByUser($userId);
+$perPage = 25;
+$page = currentPage();
+
+$totalProducts = $productRepository->countByUser($userId);
+$totalPages = totalPages($totalProducts, $perPage);
+$page = min($page, $totalPages);
+
+$products = $productRepository->findPageByUser(
+    $userId,
+    $perPage,
+    paginationOffset($page, $perPage)
+);
 
 $pageTitle = 'Products';
 $activePage = 'products';
 
 require_once __DIR__ . '/../../app/views/layout/header.php';
+
+
+$currentPage = $page;
+$pageCount = $totalPages;
+require __DIR__ . '/../../app/views/partials/pagination.php';
 ?>
 
 <section class="page-header">
@@ -24,15 +41,22 @@ require_once __DIR__ . '/../../app/views/layout/header.php';
         </p>
     </div>
 
+
+
+<?php if (hasPermission(PERMISSION_MANAGE_PRODUCTS)): ?>
     <a
         class="button button-primary"
         href="<?= e(BASE_URL) ?>/products/create.php"
     >
         Add Product
     </a>
+
+<?php endif; ?>
+
+
 </section>
 
-<?php if ($products === []): ?>
+<?php if (hasPermission(PERMISSION_MANAGE_PRODUCTS)): ?>
     <section class="dashboard-card">
         <h2>No products yet</h2>
         <p class="text-muted">
@@ -101,6 +125,8 @@ require_once __DIR__ . '/../../app/views/layout/header.php';
                                 ) ?>
                             </td>
                             <td class="actions">
+
+                            <?php if (hasPermission(PERMISSION_MANAGE_PRODUCTS)): ?>
                                 <a
                                     class="button button-small"
                                     href="<?= e(BASE_URL) ?>/products/edit.php?id=<?= e($product['id']) ?>"
@@ -131,6 +157,8 @@ require_once __DIR__ . '/../../app/views/layout/header.php';
                                         Delete
                                     </button>
                                 </form>
+
+                            <?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>

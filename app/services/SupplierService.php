@@ -34,6 +34,21 @@ final class SupplierService
             }
         }
 
+
+if (
+    $input['phone'] !== null
+    && mb_strlen($input['phone']) > 50
+) {
+    $errors[] = 'Supplier phone must not exceed 50 characters.';
+}
+
+if (
+    $input['address'] !== null
+    && mb_strlen($input['address']) > 255
+) {
+    $errors[] = 'Supplier address must not exceed 255 characters.';
+}
+
         return $errors;
     }
 

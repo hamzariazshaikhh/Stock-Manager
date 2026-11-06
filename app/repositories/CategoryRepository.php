@@ -107,7 +107,7 @@ final class CategoryRepository
              AND user_id = :user_id'
         );
 
-        $statement->execute([
+        $statement->execute([   
             'category_id' => $categoryId,
             'user_id' => $userId,
             'name' => $name,

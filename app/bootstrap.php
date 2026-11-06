@@ -7,6 +7,7 @@ require_once __DIR__ . '/config/database.php';
 
 require_once __DIR__ . '/helpers/functions.php';
 require_once __DIR__ . '/helpers/auth.php';
+require_once __DIR__ . '/helpers/authorization.php';
 require_once __DIR__ . '/helpers/csrf.php';
 require_once __DIR__ . '/helpers/flash.php';
 require_once __DIR__ . '/helpers/validations.php';
@@ -18,6 +19,7 @@ require_once __DIR__ . '/repositories/ProductRepository.php';
 require_once __DIR__ . '/repositories/SupplierRepository.php';
 require_once __DIR__ . '/repositories/StockMovementRepository.php';
 require_once __DIR__ . '/repositories/DashboardRepository.php';
+require_once __DIR__ . '/repositories/UserRepository.php';
 
 require_once __DIR__ . '/services/CategoryService.php';
 require_once __DIR__ . '/services/ProductService.php';
@@ -40,3 +42,16 @@ if (session_status() === PHP_SESSION_NONE) {
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: SAMEORIGIN');
 header('Referrer-Policy: strict-origin-when-cross-origin');
+
+header(
+    "Content-Security-Policy: "
+    . "default-src 'self'; "
+    . "script-src 'self'; "
+    . "style-src 'self'; "
+    . "img-src 'self' data:; "
+    . "form-action 'self'; "
+    . "base-uri 'self'; "
+    . "frame-ancestors 'self'"
+);
+
+header('Permissions-Policy: geolocation=(), microphone=(), camera=()');

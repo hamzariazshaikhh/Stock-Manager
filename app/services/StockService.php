@@ -33,7 +33,7 @@ final class StockService
             $errors[] = 'Invalid stock movement type.';
         }
 
-        if (!isNonNegativeInteger($quantity)) {
+        if (!isValidStockQuantity($quantity)) {
             $errors[] = 'Quantity must be a non-negative integer.';
         }
 
@@ -70,10 +70,15 @@ final class StockService
             $quantityBefore = (int) $product['quantity'];
             $quantityAfter = $quantityBefore + $quantityChange;
 
-            if ($quantityAfter < 0) {
+            if (    
+                $quantityAfter < 0
+                || $quantityAfter > MAX_STOCK_QUANTITY
+            
+            
+            ) {
                 $this->pdo->rollBack();
 
-                return ['Insufficient stock.'];
+                return ['The reuslting stock quantity is outside the allowed range.'];
             }
 
             $updated = $this->productRepository->updateQuantity(

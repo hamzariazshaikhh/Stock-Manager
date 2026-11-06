@@ -62,24 +62,31 @@ final class ProductService
             return $errors;
         }
 
-        if (
-            $this->productRepository->skuExistsForUser(
-                $data['sku'],
-                $userId,
-                $productId
-            )
-        ) {
-            return ['A product with this SKU already exists.'];
-        }
+        try{
+            $this->productRepository->create($userId, $data); 
+            } catch(PDOException $exception) {
+                if (isDuplicateEntryError($exception)) {
+                    return ['A product with this SKU already exists.'];
+                }
+                throw $exception;
+            }
+    }}
 
+    try {
         $this->productRepository->update(
             $productId,
             $userId,
             $data
         );
+    } catch(PDOException $exception) {
+        if(isDuplicateEntryError($exception)) {
+            return ['A product with this SKU already exists.'];
 
-        return [];
+        }
+        throw $exception;
     }
+
+
 
     public function delete(int $productId, int $userId): bool
     {
@@ -143,8 +150,8 @@ final class ProductService
             $errors[] = $skuError;
         }
 
-        if (!isNonNegativeInteger($data['quantity'])) {
-            $errors[] = 'Quantity must be a non-negative integer.';
+        if (!isValidStockQuantity($data['quantity'])) {
+            $errors[] = 'Quantity must be a valid non-negative integer.';
         }
 
         if (!isNonNegativeInteger($data['reorder_level'])) {
@@ -183,6 +190,8 @@ final class ProductService
         return $errors;
     }
 
+    
+
     private function normalizeForeignKey(mixed $value): ?int
     {
         if ($value === null || trim((string) $value) === '') {
@@ -211,4 +220,9 @@ final class ProductService
 
         return $value === '' ? null : $value;
     }
+
+
+
+
 }
+

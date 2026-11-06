@@ -25,11 +25,12 @@ if (isPostRequest()) {
     }
 
     if ($errors === []) {
+        // Attempt to log the user in
         try {
             $pdo = getDatabaseConnection();
 
             $statement = $pdo->prepare(
-                'SELECT id, password_hash
+                'SELECT id, password_hash, role 
                  FROM users
                  WHERE email = :email
                  LIMIT 1'
@@ -47,7 +48,10 @@ if (isPostRequest()) {
             ) {
                 $errors[] = 'Email or password is incorrect.';
             } else {
-                loginUser((int) $user['id']);
+                loginUser(
+                    (int) $user['id'],
+                    (string) $user['role']
+                );
 
                 setFlash('success', 'Welcome back.');
 

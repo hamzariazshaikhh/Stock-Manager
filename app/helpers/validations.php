@@ -124,13 +124,32 @@ function validatePassword(
 
 function validateMoney(mixed $value, string $field): ?string
 {
-    if (!isNonNegativeNumber($value)) {
+    if (!is_string($value) && !is_int($value) && !is_float($value)) {
         return "{$field} must be a non-negative number.";
     }
 
-    if (strlen((string) $value) > 12) {
-        return "{$field} is too large.";
+    $value = trim((string) $value);
+
+    if ($value === '') {
+        return "{$field} is required.";
+    }
+
+    if (!preg_match('/^\d{1,10}(?:\.\d{1,2})?$/', $value)) {
+        return "{$field} must be a non-negative number with up to 2 decimal places.";
+    }
+
+    if ((float) $value < 0) {
+        return "{$field} must be a non-negative number.";
     }
 
     return null;
+}
+
+function isValidStockQuantity(mixed $value): bool
+{
+    if (!isNonNegativeInteger($value)) {
+        return false;
+    }
+
+    return (int) $value <= MAX_STOCK_QUANTITY;
 }

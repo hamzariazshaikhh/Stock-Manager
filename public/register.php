@@ -10,6 +10,58 @@ $errors = [];
 $name = '';
 $email = '';
 
+
+$pdo->beginTransaction();
+
+try {
+    $userCount = (int) $pdo
+        ->query('SELECT COUNT(*) FROM users')
+        ->fetchColumn();
+
+    $role = $userCount === 0
+        ? ROLE_OWNER
+        : ROLE_VIEWER;
+
+    $statement = $pdo->prepare(
+        'INSERT INTO users
+            (name, email, password_hash, role)
+         VALUES
+            (:name, :email, :password_hash, :role)'
+    );
+
+    $statement->execute([
+        'name' => $name,
+        'email' => $email,
+        'password_hash' => $passwordHash,
+        'role' => $role,
+    ]);
+
+    $userId = (int) $pdo->lastInsertId();
+
+    $pdo->commit();
+
+    loginUser($userId, $role);
+
+    setFlash(
+        'success',
+        'Your account has been created successfully.'
+    );
+
+    redirect('/dashboard.php');
+} catch (PDOException $exception) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+
+    if (isDuplicateKeyException($exception)) {
+        $errors[] = 'An account with this email already exists.';
+    } else {
+        error_log($exception->getMessage());
+        $errors[] = 'Unable to create your account right now.';
+    }
+}
+
+
 if (isPostRequest()) {
     verifyCsrfToken($_POST['csrf_token'] ?? null);
 
@@ -61,18 +113,22 @@ if (isPostRequest()) {
 
                 $statement = $pdo->prepare(
                     'INSERT INTO users
-                        (name, email, password_hash)
+                        (name, email, password_hash, role)
                      VALUES
-                        (:name, :email, :password_hash)'
+                        (:name, :email, :password_hash, :role)'
                 );
 
                 $statement->execute([
                     'name' => $name,
                     'email' => $email,
                     'password_hash' => $passwordHash,
+                    'role' => ROLE_VIEWER,
                 ]);
 
-                loginUser((int) $pdo->lastInsertId());
+                loginUser(
+                    (int) $pdo->lastInsertId(),
+                    ROLE_VIEWER
+                );
 
                 setFlash(
                     'success',
@@ -97,7 +153,8 @@ require_once __DIR__ . '/../app/views/layout/header.php';
 <section class="auth-card">
     <h1>Create Account</h1>
     <p class="text-muted">
-        Create your inventory manager account.
+       Create a read-only inventory account. <br>
+    An administrator can update your access level later.
     </p>
 
     <?php require __DIR__ . '/../app/views/partials/alert.php'; ?>

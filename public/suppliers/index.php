@@ -6,6 +6,8 @@ require_once __DIR__ . '/../../app/bootstrap.php';
 
 $userId = requireAuth();
 
+requirePermission(PERMISSION_VIEW_SUPPLIERS);
+
 $pdo = getDatabaseConnection();
 
 $supplierRepository = new SupplierRepository($pdo);
@@ -26,12 +28,15 @@ require_once __DIR__ . '/../../app/views/layout/header.php';
         </p>
     </div>
 
+<?php if (hasPermission(PERMISSION_MANAGE_SUPPLIERS)): ?>
     <a
         class="button button-primary"
         href="<?= e(BASE_URL) ?>/suppliers/create.php"
     >
         Add Supplier
     </a>
+<?php endif; ?>
+
 </section>
 
 <?php if ($suppliers === []): ?>

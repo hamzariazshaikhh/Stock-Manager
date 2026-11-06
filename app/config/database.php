@@ -5,14 +5,6 @@ declare(strict_types=1);
 require_once __DIR__ . '/config.php';
 
 
-
-$localConfig = __DIR__ . '/config.local.php';
-
-if (is_file($localConfig)) {
-    require_once $localConfig;
-}
-
-
 function getDatabaseConnection(): PDO
 {
     static $pdo = null;

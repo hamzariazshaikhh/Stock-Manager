@@ -14,7 +14,8 @@ final class DashboardRepository
         return $this->fetchCount(
             'SELECT COUNT(*)
              FROM products
-             WHERE user_id = :user_id',
+             WHERE user_id = :user_id
+                AND deleted_at IS NULL',
             $userId
         );
     }
@@ -44,7 +45,8 @@ final class DashboardRepository
         $statement = $this->pdo->prepare(
             'SELECT COALESCE(SUM(quantity), 0)
              FROM products
-             WHERE user_id = :user_id'
+             WHERE user_id = :user_id
+             AND deleted_at IS NULL'
         );
 
         $statement->execute([
@@ -60,7 +62,8 @@ final class DashboardRepository
             'SELECT COUNT(*)
              FROM products
              WHERE user_id = :user_id
-             AND quantity <= reorder_level',
+                AND deleted_at IS NULL
+                AND quantity <= reorder_level',
             $userId
         );
     }
@@ -70,7 +73,8 @@ final class DashboardRepository
         $statement = $this->pdo->prepare(
             'SELECT COALESCE(SUM(quantity * unit_price), 0)
              FROM products
-             WHERE user_id = :user_id'
+             WHERE user_id = :user_id
+                AND deleted_at IS NULL'
         );
 
         $statement->execute([
@@ -106,6 +110,7 @@ final class DashboardRepository
              INNER JOIN products p
                 ON p.id = sm.product_id
                AND p.user_id = sm.user_id
+               AND deleted_at IS NULL
              WHERE sm.user_id = :user_id
              ORDER BY sm.created_at DESC, sm.id DESC
              LIMIT {$limit}"

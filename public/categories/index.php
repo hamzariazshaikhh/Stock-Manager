@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../app/bootstrap.php';
 
 $userId = requireAuth();
+requirePermission(PERMISSION_VIEW_CATEGORIES);
 $pdo = getDatabaseConnection();
 
 $repository = new CategoryRepository($pdo);
@@ -24,12 +25,18 @@ require_once __DIR__ . '/../../app/views/layout/header.php';
         </p>
     </div>
 
+
+
+<?php if (hasPermission(PERMISSION_MANAGE_CATEGORIES)): ?>
     <a
         class="button button-primary"
         href="<?= e(BASE_URL) ?>/categories/create.php"
     >
         Add Category
     </a>
+
+<?php endif; ?>
+
 </section>
 
 <?php if ($categories === []): ?>

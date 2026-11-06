@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../app/bootstrap.php';
 
 $userId = requireAuth();
+requirePermission(PERMISSION_VIEW_DASHBOARD);
 
 $pdo = getDatabaseConnection();
 
@@ -183,13 +184,18 @@ require_once __DIR__ . '/../app/views/layout/header.php';
     </div>
 
     <div class="quick-actions">
+        <?php if (hasPermission(PERMISSION_MANAGE_PRODUCTS)): ?>
         <a
             class="button button-primary"
             href="<?= e(BASE_URL) ?>/products/create.php"
         >
             Add Product
         </a>
+        <?php endif; ?>
 
+
+
+        <?php if (hasPermission(PERMISSION_MANAGE_CATEGORIES)): ?>
         <a
             class="button button-secondary"
             href="<?= e(BASE_URL) ?>/categories/create.php"
@@ -197,19 +203,30 @@ require_once __DIR__ . '/../app/views/layout/header.php';
             Add Category
         </a>
 
+        <?php endif; ?>
+
+
+
+        <?php if (hasPermission(PERMISSION_MANAGE_SUPPLIERS)): ?>
         <a
             class="button button-secondary"
             href="<?= e(BASE_URL) ?>/suppliers/create.php"
         >
             Add Supplier
         </a>
+        <?php endif; ?>
 
+
+
+        <?php if (hasPermission(PERMISSION_MANAGE_STOCK)): ?>
         <a
             class="button button-secondary"
             href="<?= e(BASE_URL) ?>/stock/create.php"
         >
             Record Stock Movement
         </a>
+
+        <?php endif; ?>
     </div>
 </section>
 

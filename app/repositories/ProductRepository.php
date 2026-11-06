@@ -34,7 +34,67 @@ final class ProductRepository
                 ON s.id = p.supplier_id
                AND s.user_id = p.user_id
              WHERE p.user_id = :user_id
-             ORDER BY p.name ASC'
+               AND p.deleted_at IS NULL
+             ORDER BY p.name ASC, p.id ASC'
+        );
+
+        $statement->execute([
+            'user_id' => $userId,
+        ]);
+
+        return $statement->fetchAll();
+    }
+
+    public function countByUser(int $userId): int
+    {
+        $statement = $this->pdo->prepare(
+            'SELECT COUNT(*)
+             FROM products
+             WHERE user_id = :user_id
+               AND deleted_at IS NULL'
+        );
+
+        $statement->execute([
+            'user_id' => $userId,
+        ]);
+
+        return (int) $statement->fetchColumn();
+    }
+
+    public function findPageByUser(
+        int $userId,
+        int $limit,
+        int $offset
+    ): array {
+        $limit = max(1, min($limit, 100));
+        $offset = max(0, $offset);
+
+        $statement = $this->pdo->prepare(
+            "SELECT
+                p.id,
+                p.name,
+                p.sku,
+                p.description,
+                p.quantity,
+                p.reorder_level,
+                p.unit_price,
+                p.category_id,
+                p.supplier_id,
+                p.created_at,
+                p.updated_at,
+                c.name AS category_name,
+                s.name AS supplier_name
+             FROM products p
+             LEFT JOIN categories c
+                ON c.id = p.category_id
+               AND c.user_id = p.user_id
+             LEFT JOIN suppliers s
+                ON s.id = p.supplier_id
+               AND s.user_id = p.user_id
+             WHERE p.user_id = :user_id
+               AND p.deleted_at IS NULL
+             ORDER BY p.name ASC, p.id ASC
+             LIMIT {$limit} OFFSET {$offset}"
         );
 
         $statement->execute([
@@ -61,10 +121,12 @@ final class ProductRepository
                 reorder_level,
                 unit_price,
                 created_at,
-                updated_at
+                updated_at,
+                deleted_at
              FROM products
              WHERE id = :product_id
                AND user_id = :user_id
+               AND deleted_at IS NULL
              LIMIT 1'
         );
 
@@ -87,6 +149,7 @@ final class ProductRepository
              FROM products
              WHERE id = :product_id
                AND user_id = :user_id
+               AND deleted_at IS NULL
              LIMIT 1
              FOR UPDATE'
         );
@@ -181,10 +244,6 @@ final class ProductRepository
         int $userId,
         array $data
     ): bool {
-        /*
-         * Quantity is intentionally not updated here.
-         * Inventory quantity must be changed through StockService.
-         */
         $statement = $this->pdo->prepare(
             'UPDATE products
              SET category_id = :category_id,
@@ -195,7 +254,8 @@ final class ProductRepository
                  reorder_level = :reorder_level,
                  unit_price = :unit_price
              WHERE id = :product_id
-               AND user_id = :user_id'
+               AND user_id = :user_id
+               AND deleted_at IS NULL'
         );
 
         $statement->execute([
@@ -222,7 +282,8 @@ final class ProductRepository
             'UPDATE products
              SET quantity = :quantity
              WHERE id = :product_id
-               AND user_id = :user_id'
+               AND user_id = :user_id
+               AND deleted_at IS NULL'
         );
 
         $statement->execute([
@@ -234,12 +295,16 @@ final class ProductRepository
         return $statement->rowCount() > 0;
     }
 
-    public function delete(int $productId, int $userId): bool
-    {
+    public function delete(
+        int $productId,
+        int $userId
+    ): bool {
         $statement = $this->pdo->prepare(
-            'DELETE FROM products
+            'UPDATE products
+             SET deleted_at = CURRENT_TIMESTAMP
              WHERE id = :product_id
-               AND user_id = :user_id'
+               AND user_id = :user_id
+               AND deleted_at IS NULL'
         );
 
         $statement->execute([

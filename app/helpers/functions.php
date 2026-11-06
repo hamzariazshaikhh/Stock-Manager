@@ -26,3 +26,41 @@ function old(string $field): string
 {
     return e($_POST[$field] ?? '');
 }
+
+
+
+function isDuplicateKeyException(PDOException $exception): bool
+{
+    return $exception->getCode() === '23000'
+        && str_contains(
+            strtolower($exception->getMessage()),
+            'duplicate'
+        );
+}
+
+
+
+function currentPage(): int
+{
+    $page = filter_input(
+        INPUT_GET,
+        'page',
+        FILTER_VALIDATE_INT
+    );
+
+    if ($page === false || $page === null || $page < 1) {
+        return 1;
+    }
+
+    return $page;
+}
+
+function paginationOffset(int $page, int $perPage): int
+{
+    return ($page - 1) * $perPage;
+}
+
+function totalPages(int $totalItems, int $perPage): int
+{
+    return max(1, (int) ceil($totalItems / $perPage));
+}
