@@ -106,7 +106,8 @@ header('Referrer-Policy: strict-origin-when-cross-origin');
 header(
     "Content-Security-Policy: "
     . "default-src 'self'; "
-    . "script-src 'self'; "
+    . "script-src 'self' https://cdn.jsdelivr.net; "
+    ."connect-src 'self' https://cdn.jsdelivr.net; "
     . "style-src 'self'; "
     . "img-src 'self' data:; "
     . "form-action 'self'; "

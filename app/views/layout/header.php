@@ -9,6 +9,21 @@ $flash = getFlash();
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+    <link
+        rel="stylesheet"
+        href="<?= e(BASE_URL) ?>/assets/css/app.css"
+    >
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Chart.js Library CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+
     <meta charset="UTF-8">
 
     <meta

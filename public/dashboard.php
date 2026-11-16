@@ -302,4 +302,22 @@ require_once __DIR__ . '/../app/views/layout/header.php';
     </dl>
 </section>
 
+
+<section class="table-card" style="margin-top: 2rem; padding: 1.5rem;">
+    <h2>Inventory Overview</h2>
+    
+    <div style="position: relative; height: 300px; width: 100%; max-width: 700px; margin: 1rem auto;">
+        <canvas 
+            id="inventoryChart"
+            data-products="<?= (int) $summary['product_count'] ?>"
+            data-categories="<?= (int) $summary['category_count'] ?>"
+            data-suppliers="<?= (int) $summary['supplier_count'] ?>"
+            data-low-stock="<?= (int) $summary['low_stock_count'] ?>"
+        ></canvas>
+    </div>
+</section>
+
+
+
+
 <?php require_once __DIR__ . '/../app/views/layout/footer.php'; ?>

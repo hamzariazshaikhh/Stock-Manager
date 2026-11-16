@@ -43,7 +43,7 @@ require __DIR__ . '/../../app/views/partials/pagination.php';
 
 
 
-<?php if (hasPermission(PERMISSION_MANAGE_PRODUCTS)): ?>
+<?php /*if (hasPermission(PERMISSION_MANAGE_PRODUCTS)): ?>
     <a
         class="button button-primary"
         href="<?= e(BASE_URL) ?>/products/create.php"
@@ -51,7 +51,31 @@ require __DIR__ . '/../../app/views/partials/pagination.php';
         Add Product
     </a>
 
+<?php endif;  */ ?>
+
+<?php if (hasPermission(PERMISSION_MANAGE_PRODUCTS)): ?>
+    <a
+        class="button button-secondary"
+        href="<?= e(BASE_URL) ?>/products/export.php"
+    >
+        Export CSV
+    </a>
+
+    <a
+        class="button button-secondary"
+        href="<?= e(BASE_URL) ?>/products/import.php"
+    >
+        Import CSV
+    </a>
+
+    <a
+        class="button button-primary"
+        href="<?= e(BASE_URL) ?>/products/create.php"
+    >
+        Add Product
+    </a>
 <?php endif; ?>
+
 
 
 </section>
