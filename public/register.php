@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 require_once __DIR__ . '/../app/bootstrap.php';
@@ -10,67 +9,13 @@ $errors = [];
 $name = '';
 $email = '';
 
-
-$pdo->beginTransaction();
-
-try {
-    $userCount = (int) $pdo
-        ->query('SELECT COUNT(*) FROM users')
-        ->fetchColumn();
-
-    $role = $userCount === 0
-        ? ROLE_OWNER
-        : ROLE_VIEWER;
-
-    $statement = $pdo->prepare(
-        'INSERT INTO users
-            (name, email, password_hash, role)
-         VALUES
-            (:name, :email, :password_hash, :role)'
-    );
-
-    $statement->execute([
-        'name' => $name,
-        'email' => $email,
-        'password_hash' => $passwordHash,
-        'role' => $role,
-    ]);
-
-    $userId = (int) $pdo->lastInsertId();
-
-    $pdo->commit();
-
-    loginUser($userId, $role);
-
-    setFlash(
-        'success',
-        'Your account has been created successfully.'
-    );
-
-    redirect('/dashboard.php');
-} catch (PDOException $exception) {
-    if ($pdo->inTransaction()) {
-        $pdo->rollBack();
-    }
-
-    if (isDuplicateKeyException($exception)) {
-        $errors[] = 'An account with this email already exists.';
-    } else {
-        error_log($exception->getMessage());
-        $errors[] = 'Unable to create your account right now.';
-    }
-}
-
-
 if (isPostRequest()) {
     verifyCsrfToken($_POST['csrf_token'] ?? null);
 
     $name = trim((string) ($_POST['name'] ?? ''));
     $email = strtolower(trim((string) ($_POST['email'] ?? '')));
     $password = (string) ($_POST['password'] ?? '');
-    $passwordConfirmation = (string) (
-        $_POST['password_confirmation'] ?? ''
-    );
+    $passwordConfirmation = (string) ($_POST['password_confirmation'] ?? '');
 
     $nameError = validateRequiredString($name, 'Name', 120);
     if ($nameError !== null) {
@@ -82,9 +27,8 @@ if (isPostRequest()) {
         $errors[] = $emailError;
     }
 
-    $passwordError = validatePassword($password);
-    if ($passwordError !== null) {
-        $errors[] = $passwordError;
+    if (empty($password)) {
+        $errors[] = 'Password is required.';
     }
 
     if ($password !== $passwordConfirmation) {
@@ -95,15 +39,13 @@ if (isPostRequest()) {
         try {
             $pdo = getDatabaseConnection();
 
-            $statement = $pdo->prepare(
+            $checkStatement = $pdo->prepare(
                 'SELECT id FROM users WHERE email = :email LIMIT 1'
             );
 
-            $statement->execute([
-                'email' => $email,
-            ]);
+            $checkStatement->execute(['email' => $email]);
 
-            if ($statement->fetch() !== false) {
+            if ($checkStatement->fetch() !== false) {
                 $errors[] = 'An account with this email already exists.';
             } else {
                 $passwordHash = password_hash(
@@ -111,24 +53,21 @@ if (isPostRequest()) {
                     PASSWORD_DEFAULT
                 );
 
-                $statement = $pdo->prepare(
-                    'INSERT INTO users
-                        (name, email, password_hash, role)
-                     VALUES
-                        (:name, :email, :password_hash, :role)'
+                $insertStatement = $pdo->prepare(
+                    'INSERT INTO users (name, email, password_hash, role) ' .
+                    'VALUES (:name, :email, :password_hash, :role)'
                 );
 
-                $statement->execute([
+                $insertStatement->execute([
                     'name' => $name,
                     'email' => $email,
                     'password_hash' => $passwordHash,
                     'role' => ROLE_VIEWER,
                 ]);
 
-                loginUser(
-                    (int) $pdo->lastInsertId(),
-                    ROLE_VIEWER
-                );
+                $userId = (int) $pdo->lastInsertId();
+
+                loginUser($userId, ROLE_VIEWER);
 
                 setFlash(
                     'success',
@@ -139,7 +78,6 @@ if (isPostRequest()) {
             }
         } catch (PDOException $exception) {
             error_log($exception->getMessage());
-
             $errors[] = 'Unable to create your account right now.';
         }
     }
@@ -149,12 +87,11 @@ $pageTitle = 'Create Account';
 
 require_once __DIR__ . '/../app/views/layout/header.php';
 ?>
-
 <section class="auth-card">
     <h1>Create Account</h1>
     <p class="text-muted">
-       Create a read-only inventory account. <br>
-    An administrator can update your access level later.
+        Create a read-only inventory account. <br>
+        An administrator can update your access level later.
     </p>
 
     <?php require __DIR__ . '/../app/views/partials/alert.php'; ?>

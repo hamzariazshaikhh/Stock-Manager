@@ -135,4 +135,5 @@ final class DashboardRepository
 
         return (int) $statement->fetchColumn();
     }
+
 }

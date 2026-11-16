@@ -94,11 +94,13 @@ final class ProductRepository
              WHERE p.user_id = :user_id
                AND p.deleted_at IS NULL
              ORDER BY p.name ASC, p.id ASC
-             LIMIT {$limit} OFFSET {$offset}"
+             LIMIT :limit OFFSET :offset"
         );
 
         $statement->execute([
             'user_id' => $userId,
+            'limit' => $limit,
+            'offset' => $offset,
         ]);
 
         return $statement->fetchAll();

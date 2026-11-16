@@ -7,11 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 5000);
     });
 
-    const confirmForms = document.querySelectorAll(
-        'form[data-confirm]'
-    );
-
-    confirmForms.forEach((form) => {
+    document.querySelectorAll('form[data-confirm]').forEach((form) => {
         form.addEventListener('submit', (event) => {
             const message = form.dataset.confirm;
 

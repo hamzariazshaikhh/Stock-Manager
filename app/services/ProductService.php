@@ -29,7 +29,15 @@ final class ProductService
             return ['A product with this SKU already exists.'];
         }
 
-        $this->productRepository->create($userId, $data);
+        try {
+            $this->productRepository->create($userId, $data);
+        } catch (PDOException $exception) {
+            if (isDuplicateKeyException($exception)) {
+                return ['A product with this SKU already exists.'];
+            }
+
+            throw $exception;
+        }
 
         return [];
     }
@@ -50,10 +58,7 @@ final class ProductService
 
         $data = $this->normalize($input);
 
-        /*
-         * Quantity is intentionally taken from the existing product.
-         * Product editing must not silently change inventory.
-         */
+        // Product editing must not silently change inventory quantity.
         $data['quantity'] = (int) $product['quantity'];
 
         $errors = $this->validate($data, $userId);
@@ -62,31 +67,32 @@ final class ProductService
             return $errors;
         }
 
-        try{
-            $this->productRepository->create($userId, $data); 
-            } catch(PDOException $exception) {
-                if (isDuplicateEntryError($exception)) {
-                    return ['A product with this SKU already exists.'];
-                }
-                throw $exception;
-            }
-    }}
-
-    try {
-        $this->productRepository->update(
-            $productId,
-            $userId,
-            $data
-        );
-    } catch(PDOException $exception) {
-        if(isDuplicateEntryError($exception)) {
+        if (
+            $this->productRepository->skuExistsForUser(
+                $data['sku'],
+                $userId,
+                $productId
+            )
+        ) {
             return ['A product with this SKU already exists.'];
-
         }
-        throw $exception;
+
+        try {
+            $this->productRepository->update(
+                $productId,
+                $userId,
+                $data
+            );
+        } catch (PDOException $exception) {
+            if (isDuplicateKeyException($exception)) {
+                return ['A product with this SKU already exists.'];
+            }
+
+            throw $exception;
+        }
+
+        return [];
     }
-
-
 
     public function delete(int $productId, int $userId): bool
     {
@@ -148,14 +154,32 @@ final class ProductService
 
         if ($skuError !== null) {
             $errors[] = $skuError;
+        } elseif (
+            !preg_match(
+                '/^[A-Z0-9][A-Z0-9._-]*$/',
+                $data['sku']
+            )
+        ) {
+            $errors[] = 'SKU may contain only letters, numbers, '
+                . 'dots, underscores, and hyphens.';
         }
 
         if (!isValidStockQuantity($data['quantity'])) {
             $errors[] = 'Quantity must be a valid non-negative integer.';
         }
 
-        if (!isNonNegativeInteger($data['reorder_level'])) {
-            $errors[] = 'Reorder level must be a non-negative integer.';
+        if (!isValidStockQuantity($data['reorder_level'])) {
+            $errors[] = 'Reorder level must be a valid non-negative integer.';
+        }
+
+        if (
+            $data['description'] !== null
+            && mb_strlen($data['description'])
+                > MAX_PRODUCT_DESCRIPTION_LENGTH
+        ) {
+            $errors[] = 'Description must not exceed '
+                . MAX_PRODUCT_DESCRIPTION_LENGTH
+                . ' characters.';
         }
 
         $priceError = validateMoney(
@@ -190,8 +214,6 @@ final class ProductService
         return $errors;
     }
 
-    
-
     private function normalizeForeignKey(mixed $value): ?int
     {
         if ($value === null || trim((string) $value) === '') {
@@ -220,9 +242,4 @@ final class ProductService
 
         return $value === '' ? null : $value;
     }
-
-
-
-
 }
-

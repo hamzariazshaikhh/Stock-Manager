@@ -97,7 +97,7 @@ require_once __DIR__ . '/../app/views/layout/header.php';
     <div class="stat-card">
         <span class="stat-label">Inventory Value</span>
         <strong class="stat-value">
-            $<?= e($summary['inventory_value']) ?>
+            PKR <?= e($summary['inventory_value']) ?>
         </strong>
     </div>
 </section>

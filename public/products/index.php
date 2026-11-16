@@ -56,7 +56,7 @@ require __DIR__ . '/../../app/views/partials/pagination.php';
 
 </section>
 
-<?php if (hasPermission(PERMISSION_MANAGE_PRODUCTS)): ?>
+<?php if ($products === []): ?>
     <section class="dashboard-card">
         <h2>No products yet</h2>
         <p class="text-muted">
@@ -117,7 +117,7 @@ require __DIR__ . '/../../app/views/partials/pagination.php';
                                 <?php endif; ?>
                             </td>
                             <td>
-                                $<?= e(
+                                PKR <?= e(
                                     number_format(
                                         (float) $product['unit_price'],
                                         2
@@ -137,6 +137,7 @@ require __DIR__ . '/../../app/views/partials/pagination.php';
                                 <form
                                     method="post"
                                     action="<?= e(BASE_URL) ?>/products/delete.php"
+                                    data-confirm="Archive this product? Its stock history will be preserved."
                                 >
                                     <input
                                         type="hidden"
