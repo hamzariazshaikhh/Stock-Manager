@@ -17,6 +17,7 @@ require_once __DIR__ . '/repositories/SupplierRepository.php';
 require_once __DIR__ . '/repositories/StockMovementRepository.php';
 require_once __DIR__ . '/repositories/DashboardRepository.php';
 require_once __DIR__ . '/repositories/UserRepository.php';
+require_once __DIR__ . '/repositories/ActivityLogRepository.php';
 
 require_once __DIR__ . '/services/CategoryService.php';
 require_once __DIR__ . '/services/ProductService.php';

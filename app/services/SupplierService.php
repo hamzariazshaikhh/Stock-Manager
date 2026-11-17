@@ -69,6 +69,14 @@ if (
             $input['address']
         );
 
+           // Log action
+        logUserAction(
+            $this->repository->getPdo(),
+            $userId,
+            'SUPPLIER_CREATE',
+            "Created supplier: {$input['name']}"
+        );        
+
         return [];
     }
 
@@ -102,12 +110,33 @@ if (
             $input['address']
         );
 
+          // Log action
+        logUserAction(
+            $this->repository->getPdo(),
+            $userId,
+            'SUPPLIER_UPDATE',
+            "Updated supplier ID {$supplierId}: {$input['name']}"
+        );
+
+
         return [];
     }
 
     public function delete(int $supplierId, int $userId): bool
     {
-        return $this->repository->delete($supplierId, $userId);
+        $deleted = $this->repository->delete($supplierId, $userId);
+
+        if ($deleted) {
+            // Log action
+            logUserAction(
+                $this->repository->getPdo(),
+                $userId,
+                'SUPPLIER_DELETE',
+                "Deleted supplier ID {$supplierId}"
+            );
+        }
+
+        return $deleted;
     }
 
     private function normalize(array $input): array

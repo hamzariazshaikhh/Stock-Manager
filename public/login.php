@@ -53,6 +53,14 @@ if (isPostRequest()) {
                     (string) $user['role']
                 );
 
+                //record the login activity log
+                 logUserAction(
+                    $pdo,
+                    (int) $user['id'],
+                    'USER_LOGIN',
+                    'User logged into the system.'
+                );
+
                 setFlash('success', 'Welcome back.');
 
                 redirect('/dashboard.php');

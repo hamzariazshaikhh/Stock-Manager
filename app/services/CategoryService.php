@@ -43,6 +43,15 @@ final class CategoryService
 
         $this->repository->create($name, $userId);
 
+        // Log action
+        logUserAction(
+            $this->repository->getPdo(),
+            $userId,
+            'CATEGORY_CREATE',
+            "Created category: {$name}"
+        );
+
+
         return [];
     }
 
@@ -83,6 +92,15 @@ final class CategoryService
             $name
         );
 
+        // Log action
+        logUserAction(
+            $this->repository->getPdo(),
+            $userId,
+            'CATEGORY_UPDATE',
+            "Updated category ID {$categoryId} to: {$name}"
+        );
+
+
         return [];
     }
 
@@ -90,9 +108,23 @@ final class CategoryService
         int $categoryId,
         int $userId
     ): bool {
-        return $this->repository->delete(
+
+        $deleted = $this->repository->delete(
             $categoryId,
             $userId
         );
+
+        if ($deleted) {
+            // Log action
+            logUserAction(
+                $this->repository->getPdo(),
+                $userId,
+                'CATEGORY_DELETE',
+                "Deleted category ID {$categoryId}"
+            );
+        }
+
+        return $deleted;
+
     }
 }

@@ -9,6 +9,11 @@ final class ProductRepository
     ) {
     }
 
+    public function getPdo(): PDO
+    {
+        return $this->pdo;
+    }
+
     public function findAllByUser(int $userId): array
     {
         $statement = $this->pdo->prepare(
@@ -297,10 +302,8 @@ final class ProductRepository
         return $statement->rowCount() > 0;
     }
 
-    public function delete(
-        int $productId,
-        int $userId
-    ): bool {
+    public function delete(int $productId, int $userId): bool
+     {
         $statement = $this->pdo->prepare(
             'UPDATE products
              SET deleted_at = CURRENT_TIMESTAMP
@@ -309,7 +312,7 @@ final class ProductRepository
                AND deleted_at IS NULL'
         );
 
-        $statement->execute([
+        return $statement->execute([
             'product_id' => $productId,
             'user_id' => $userId,
         ]);

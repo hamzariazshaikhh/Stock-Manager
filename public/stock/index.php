@@ -14,6 +14,9 @@ $movementRepository = new StockMovementRepository($pdo);
 $perPage = 25;
 $page = currentPage();
 
+// Check if the logged-in user is an owner
+$isOwner = hasROLE(ROLE_OWNER);
+
 $totalMovements = $movementRepository->countByUser($userId);
 $totalPages = totalPages($totalMovements, $perPage);
 $page = min($page, $totalPages);
@@ -21,7 +24,8 @@ $page = min($page, $totalPages);
 $movements = $movementRepository->findPageByUser(
     $userId,
     $perPage,
-    paginationOffset($page, $perPage)
+    paginationOffset($page, $perPage),
+    $isOwner
 );
 
 
@@ -76,6 +80,7 @@ require_once __DIR__ . '/../../app/views/layout/header.php';
                         <th>Change</th>
                         <th>Before</th>
                         <th>After</th>
+                        <th>Recorded BY</th>
                         <th>Note</th>
                     </tr>
                 </thead>
@@ -113,6 +118,10 @@ require_once __DIR__ . '/../../app/views/layout/header.php';
 
                             <td>
                                 <?= e($movement['quantity_after']) ?>
+                            </td>
+
+                            <td>
+                                <?= e($movement['user_email'] ?? 'Unknown') ?>
                             </td>
 
                             <td>

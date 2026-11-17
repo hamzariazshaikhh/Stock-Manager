@@ -16,4 +16,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // Global Print / PDF Export Handler
+    const printButton = document.getElementById('printButton');
+    if (printButton) {
+        printButton.addEventListener('click', () => {
+            window.print();
+        });
+    }
 });

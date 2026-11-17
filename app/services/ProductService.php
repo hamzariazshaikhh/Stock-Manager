@@ -31,6 +31,17 @@ final class ProductService
 
         try {
             $this->productRepository->create($userId, $data);
+
+            // Record the activity log 
+
+             logUserAction(
+                $this->productRepository->getPdo(),
+                $userId,
+                'PRODUCT_CREATE',
+                "Created product: {$data['name']} (SKU: {$data['sku']})"
+            );
+
+
         } catch (PDOException $exception) {
             if (isDuplicateKeyException($exception)) {
                 return ['A product with this SKU already exists.'];
@@ -83,6 +94,16 @@ final class ProductService
                 $userId,
                 $data
             );
+
+            // Record the activity log
+             logUserAction(
+                $this->productRepository->getPdo(),
+                $userId,
+                'PRODUCT_UPDATE',
+                "Updated product: {$data['name']} (SKU: {$data['sku']})"
+            );
+
+
         } catch (PDOException $exception) {
             if (isDuplicateKeyException($exception)) {
                 return ['A product with this SKU already exists.'];
@@ -96,10 +117,26 @@ final class ProductService
 
     public function delete(int $productId, int $userId): bool
     {
-        return $this->productRepository->delete(
-            $productId,
-            $userId
-        );
+        $product = $this->productRepository->findByIdForUser($productId, $userId);
+        if ($product === null) {
+            return false;
+        }
+
+        $productName = $product['name'];
+        //perform the soft delete
+        $deleted = $this->productRepository->delete($productId, $userId);
+
+          // 3. If successful, record the action in the audit log
+        if ($deleted) {
+            logUserAction(
+                $this->productRepository->getPdo(),
+                $userId,
+                'PRODUCT_DELETE',
+                "Deleted product: {$productName} (ID: {$productId})"
+            );
+        }
+
+        return $deleted;
     }
 
     private function normalize(array $input): array

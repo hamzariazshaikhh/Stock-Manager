@@ -64,3 +64,14 @@ function totalPages(int $totalItems, int $perPage): int
 {
     return max(1, (int) ceil($totalItems / $perPage));
 }
+
+function logUserAction(PDO $pdo, int $userId, string $action, string $description): void
+{
+    try {
+        $repo = new ActivityLogRepository($pdo);
+        $repo->log($userId, $action, $description);
+    } catch (Exception $e) {
+        // Silently catch logging errors to prevent breaking main user requests
+        error_log('Audit logging failed: ' . $e->getMessage());
+    }
+}

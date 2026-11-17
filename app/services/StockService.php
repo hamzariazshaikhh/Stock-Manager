@@ -103,6 +103,14 @@ final class StockService
                 'note' => $note,
             ]);
 
+               // Record in Activity Audit Logs
+            logUserAction(
+                $this->pdo,
+                $userId,
+                'STOCK_MOVEMENT',
+                "Recorded stock movement ({$movementType}) of {$quantity} units for product ID {$productId}."
+            );
+
             $this->pdo->commit();
 
             return [];

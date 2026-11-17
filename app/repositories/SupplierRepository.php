@@ -9,6 +9,11 @@ final class SupplierRepository
     ) {
     }
 
+    public function getPdo(): PDO
+    {
+        return $this->pdo;
+    }
+
     public function findAllByUser(int $userId): array
     {
         $statement = $this->pdo->prepare(

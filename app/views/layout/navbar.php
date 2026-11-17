@@ -67,4 +67,29 @@ declare(strict_types=1);
             Users
         </a>
     <?php endif; ?>
+
+    <?php if (hasPermission(PERMISSION_VIEW_DASHBOARD)): ?>
+        <a
+            class="<?= $activePage === 'reports'
+                ? 'navigation-link active'
+                : 'navigation-link' ?>"
+            href="<?= e(BASE_URL) ?>/reports/index.php"
+        >
+            Reports
+        </a>
+    <?php endif; ?>
+
+    <?php if (hasPermission(PERMISSION_MANAGE_USERS)): ?>
+        <a
+            class="<?= $activePage === 'audit-logs'
+                ? 'navigation-link active'
+                : 'navigation-link' ?>"
+            href="<?= e(BASE_URL) ?>/audit-logs/index.php"
+        >
+            Audit Logs
+        </a>
+    <?php endif; ?>
+
+
+
 </nav>

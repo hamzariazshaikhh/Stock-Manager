@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 require_once __DIR__ . '/../../app/bootstrap.php';
@@ -19,22 +18,23 @@ $productId = filter_var(
     FILTER_VALIDATE_INT
 );
 
-if (
-    $productId === false
-    || $productId === null
-    || $productId < 1
-) {
+if ($productId === false || $productId === null || $productId < 1) {
     setFlash('error', 'Invalid product.');
     redirect('/products/index.php');
 }
 
 $pdo = getDatabaseConnection();
-$productRepository = new ProductRepository($pdo);
 
-$deleted = $productRepository->delete(
-    $productId,
-    $userId
+// 1. Initialize ProductService correctly
+$productService = new ProductService(
+    new ProductRepository($pdo),
+    new CategoryRepository($pdo),
+    new SupplierRepository($pdo)
 );
+
+// 2. Call the Service method, NOT the Repository directly
+// This triggers the Audit Log we added in the previous step
+$deleted = $productService->delete($productId, $userId);
 
 if (!$deleted) {
     setFlash('error', 'Product not found.');
