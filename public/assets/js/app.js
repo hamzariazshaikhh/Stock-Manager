@@ -25,3 +25,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+
+// This script is external, so it is ALLOWED by your CSP ('script-src 'self')
+document.addEventListener('DOMContentLoaded', () => {
+    // ... existing code ...
+
+    document.addEventListener('click', (event) => {
+        if (event.target && event.target.id === 'printButton') {
+            event.preventDefault();
+            window.print();
+        }
+    });
+});

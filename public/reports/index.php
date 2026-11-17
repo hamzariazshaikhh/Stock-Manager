@@ -35,10 +35,9 @@ require_once __DIR__ . '/../../app/views/layout/header.php';
         <p class="text-muted">Generated on <?= date('F j, Y, g:i a') ?></p>
     </div>
 
-    <!-- 100% Reliable Print Link styled as a Button -->
-    <a href="javascript:window.print();" class="button button-primary">
+   <button id="printButton" class="button button-primary" type="button">
         Print / Save as PDF
-    </a>
+    </button>
 </section>
 
 <!-- Report Container -->
