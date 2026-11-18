@@ -26,25 +26,38 @@ h2 {
     font-weight: 600;
 }
 
-.form-group input {
+.form-group input, 
+.form-group select, 
+.form-group textarea {
     width: 100%;
     padding: 0.7rem 0.8rem;
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius);
-    background: white;
+    background: var(--card-bg); /* Was hardcoded 'white' */
+    color: var(--text-color);   /* Added so text is visible */
 }
 
-.form-group input:focus {
-    border-color: var(--color-primary);
-    outline: 2px solid rgb(37 99 235 / 20%);
+/* Ensure focus states look good in both modes */
+.form-group input:focus, 
+.form-group select:focus, 
+.form-group textarea:focus {
+    border-color: var(--accent-color);
+    outline: 2px solid rgba(59, 130, 246, 0.2);
 }
+
 
 .button {
-    display: inline-block;
-    padding: 0.7rem 1rem;
-    border: 0;
-    border-radius: var(--radius);
-    font-weight: 600;
+    background-color: var(--accent-color);
+    color: var(--button-text);
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+/* Ensure text is always visible */
+h1, h2, h3, p, label {
+    color: var(--text-color);
 }
 
 .button-primary {
@@ -122,10 +135,12 @@ h2 {
 .table-card {
     margin: 2rem auto;
     padding: 2rem;
-    background: var(--color-surface);
+    background: var(--card-bg); /* Was hardcoded surface */
+    border: 1px solid var(--border-color); /* Added border */
     border-radius: var(--radius);
     box-shadow: var(--shadow);
 }
+
 
 .form-card {
     width: min(100%, 600px);
@@ -235,17 +250,18 @@ h2 {
     display: inline-block;
     padding: 0.65rem 0.85rem;
     border-radius: var(--radius);
-    color: rgb(255 255 255 / 82%);
+    color: var(--text-color); /* Dynamic text color */
     font-size: 0.95rem;
     font-weight: 600;
-    white-space: nowrap;
+    transition: background 0.3s;
 }
 
 .navigation-link:hover,
 .navigation-link.active {
-    background: rgb(255 255 255 / 16%);
-    color: white;
+    background: var(--accent-color);
+    color: #ffffff; /* Always white text on the accent button */
 }
+
 
 .dashboard-grid {
     display: grid;
@@ -431,7 +447,8 @@ h2 {
 }
 
 .data-table tbody tr:hover {
-    background: rgb(37 99 235 / 5%);
+    background: var(--border-color); /* Changes based on theme */
+    transition: background 0.2s;
 }
 
 .data-table td,

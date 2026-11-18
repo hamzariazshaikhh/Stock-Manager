@@ -4,6 +4,12 @@ declare(strict_types=1);
 ?>
 
 <nav class="main-navigation" aria-label="Main navigation">
+
+<!-- Theme Toggle Button -->
+    <button id="themeToggle" class="navigation-link" style="border:none; cursor:pointer;">
+        🌓 
+    </button>
+
     <a
         class="<?= $activePage === 'dashboard'
             ? 'navigation-link active'
@@ -91,5 +97,21 @@ declare(strict_types=1);
     <?php endif; ?>
 
 
+<style>
+    .navigation-link {
+        padding: 10px 15px;
+        text-decoration: none;
+        color: var(--text-color);
+        border-radius: 8px;
+    }
+    .navigation-link:hover {
+        background-color: var(--accent-color);
+        color: white;
+    }
+    .navigation-link.active {
+        background-color: var(--accent-color);
+        color: white;
+    }
+</style>
 
 </nav>

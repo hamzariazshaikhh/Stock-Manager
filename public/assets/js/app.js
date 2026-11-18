@@ -29,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // This script is external, so it is ALLOWED by your CSP ('script-src 'self')
 document.addEventListener('DOMContentLoaded', () => {
-    // ... existing code ...
 
     document.addEventListener('click', (event) => {
         if (event.target && event.target.id === 'printButton') {
@@ -38,3 +37,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Theme Toggle logic
+    const toggleButton = document.getElementById('themeToggle');
+    
+    // Apply saved theme on load to <html>
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    if (toggleButton) {
+        toggleButton.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+    }
+});
+
+

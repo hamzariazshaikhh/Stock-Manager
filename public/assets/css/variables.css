@@ -1,17 +1,31 @@
 :root {
-    --color-primary: #2563eb;
-    --color-primary-dark: #1d4ed8;
-    --color-secondary: #475569;
-    --color-success: #166534;
-    --color-success-bg: #dcfce7;
-    --color-error: #991b1b;
-    --color-error-bg: #fee2e2;
-    --color-text: #1e293b;
-    --color-muted: #64748b;
-    --color-border: #cbd5e1;
-    --color-background: #f8fafc;
-    --color-surface: #ffffff;
-    --color-header: #0f172a;
-    --radius: 8px;
-    --shadow: 0 4px 14px rgb(15 23 42 / 8%);
+    /* Light Mode */
+    --bg-color: #f8fafc;
+    --text-color: #1e293b;
+    --card-bg: #ffffff;
+    --accent-color: #2563eb;
+    --border-color: #cbd5e1;
+    --header-text: #1e293b;
+}
+
+[data-theme='dark'] {
+    /* Dark Mode */
+    --bg-color: #0f172a;
+    --text-color: #f1f5f9;
+    --card-bg: #1e293b;
+    --accent-color: #60a5fa;
+    --border-color: #334155;
+    --header-text: #f8fafc;
+}
+
+/* GLOBAL FORCE: This ensures every element respects the variables */
+html[data-theme='light'] body { background-color: #f8fafc; color: #1e293b; }
+html[data-theme='dark'] body { background-color: #0f172a; color: #f1f5f9; }
+
+/* Force cards to respond to the theme */
+html[data-theme='dark'] .table-card, 
+html[data-theme='dark'] .stat-card, 
+html[data-theme='dark'] .auth-card {
+    background-color: #1e293b !important;
+    color: #f1f5f9 !important;
 }

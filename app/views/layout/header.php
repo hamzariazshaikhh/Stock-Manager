@@ -106,3 +106,9 @@ $flash = getFlash();
             <?= e($flash['message']) ?>
         </div>
     <?php endif; ?>
+
+    <script>
+    // Apply theme immediately before page renders to prevent flash
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+</script>
