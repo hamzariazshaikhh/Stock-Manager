@@ -58,6 +58,87 @@ require_once __DIR__ . '/../app/views/layout/header.php';
     </div>
 </section>
 
+<!-- MODULAR WIDGET SYSTEM -->
+<section class="dashboard-stats">
+    <?php require __DIR__ . '/../app/views/partials/dashboard/stats_grid.php'; ?>
+
+    <?php if (hasRole(ROLE_OWNER, ROLE_ADMIN)): ?>
+        <?php require __DIR__ . '/../app/views/partials/dashboard/financials.php'; ?>
+    <?php endif; ?>
+
+    <?php require __DIR__ . '/../app/views/partials/dashboard/low_stock.php'; ?>
+</section>
+
+<!-- ORIGINAL ACTION CARDS -->
+<section class="dashboard-grid">
+    <a class="dashboard-action-card" href="<?= e(BASE_URL) ?>/products/index.php">
+        <span class="dashboard-action-icon">📦</span>
+        <h2>Products</h2>
+        <span class="dashboard-action-link">Manage Products</span>
+    </a>
+    <a class="dashboard-action-card" href="<?= e(BASE_URL) ?>/categories/index.php">
+        <span class="dashboard-action-icon">🏷️</span>
+        <h2>Categories</h2>
+        <span class="dashboard-action-link">Manage Categories</span>
+    </a>
+    <a class="dashboard-action-card" href="<?= e(BASE_URL) ?>/suppliers/index.php">
+        <span class="dashboard-action-icon">🚚</span>
+        <h2>Suppliers</h2>
+        <span class="dashboard-action-link">Manage Suppliers</span>
+    </a>
+    <a class="dashboard-action-card" href="<?= e(BASE_URL) ?>/stock/index.php">
+        <span class="dashboard-action-icon">📊</span>
+        <h2>Stock Movements</h2>
+        <span class="dashboard-action-link">Manage Stock</span>
+    </a>
+</section>
+
+<!-- RECENT ACTIVITY & CHART -->
+<section class="dashboard-card">
+    <h2>Recent Stock Movements</h2>
+    <?php if ($summary['recent_movements'] === []): ?>
+        <p class="text-muted">No stock movements recorded yet.</p>
+    <?php else: ?>
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead><tr><th>Date</th><th>Product</th><th>Type</th><th>Change</th><th>After</th></tr></thead>
+                <tbody>
+                    <?php foreach ($summary['recent_movements'] as $movement): ?>
+                        <tr>
+                            <td><?= e($movement['created_at']) ?></td>
+                            <td><?= e($movement['product_name']) ?></td>
+                            <td><?= e(ucfirst($movement['movement_type'])) ?></td>
+                            <td><?= e($movement['quantity_change']) ?></td>
+                            <td><?= e($movement['quantity_after']) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
+</section>
+
+<section class="table-card" style="margin-top: 2rem; padding: 1.5rem;">
+    <h2>Inventory Overview</h2>
+    <div style="position: relative; height: 300px; width: 100%; max-width: 700px; margin: 1rem auto;">
+        <canvas id="inventoryChart" 
+            data-products="<?= (int)$summary['product_count'] ?>"
+            data-categories="<?= (int)$summary['category_count'] ?>"
+            data-suppliers="<?= (int)$summary['supplier_count'] ?>"
+            data-low-stock="<?= (int)$summary['low_stock_count'] ?>">
+        </canvas>
+    </div>
+</section>
+
+
+
+
+
+
+
+
+<?php
+/*
 <section class="dashboard-stats">
     <div class="stat-card">
         <span class="stat-label">Products</span>
@@ -171,6 +252,17 @@ require_once __DIR__ . '/../app/views/layout/header.php';
         </span>
     </a>
 </section>
+*/ ?>
+
+
+
+
+
+
+
+
+
+
 
 <section class="quick-actions-card">
     <div class="section-heading">
@@ -229,7 +321,7 @@ require_once __DIR__ . '/../app/views/layout/header.php';
         <?php endif; ?>
     </div>
 </section>
-
+<!-- 
 <section class="dashboard-card">
     <h2>Recent Stock Movements</h2>
 
@@ -284,7 +376,7 @@ require_once __DIR__ . '/../app/views/layout/header.php';
             </table>
         </div>
     <?php endif; ?>
-</section>
+</section> -->
 
 <section class="dashboard-card">
     <h2>Account Information</h2>
@@ -303,7 +395,7 @@ require_once __DIR__ . '/../app/views/layout/header.php';
 </section>
 
 
-<section class="table-card" style="margin-top: 2rem; padding: 1.5rem;">
+<!-- <section class="table-card" style="margin-top: 2rem; padding: 1.5rem;">
     <h2>Inventory Overview</h2>
     
     <div style="position: relative; height: 300px; width: 100%; max-width: 700px; margin: 1rem auto;">
@@ -315,9 +407,10 @@ require_once __DIR__ . '/../app/views/layout/header.php';
             data-low-stock="<?= (int) $summary['low_stock_count'] ?>"
         ></canvas>
     </div>
-</section>
+</section> -->
 
 
 
 
 <?php require_once __DIR__ . '/../app/views/layout/footer.php'; ?>
+

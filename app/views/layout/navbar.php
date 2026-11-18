@@ -74,7 +74,7 @@ declare(strict_types=1);
         </a>
     <?php endif; ?>
 
-    <?php if (hasPermission(PERMISSION_VIEW_DASHBOARD)): ?>
+    <?php if (hasPermission(PERMISSION_VIEW_REPORTS)): ?>
         <a
             class="<?= $activePage === 'reports'
                 ? 'navigation-link active'

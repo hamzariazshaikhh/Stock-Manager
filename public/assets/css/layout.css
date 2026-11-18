@@ -1,8 +1,9 @@
 body {
-    background: var(--color-background);
-    color: var(--color-text);
-    font-family: Arial, sans-serif;
-    line-height: 1.5;
+    background: var(--color-background, var(--bg-color));
+    color: var(--color-text, var(--text-color));
+    font-family: var(--font-family-base, Arial, sans-serif);
+    font-size: var(--font-size-base);
+    line-height: 1.6;
 }
 
 .container {
@@ -40,8 +41,7 @@ body {
     text-align: center;
 }
 
-.auth-card,
-.dashboard-card {
+.auth-card {
     width: min(100%, 500px);
     margin: 2rem auto;
     padding: 2rem;
@@ -49,6 +49,21 @@ body {
     border-radius: var(--radius);
     box-shadow: var(--shadow);
 }
+
+.dashboard-card {
+    width: 100%;
+    margin: 0 0 2rem;
+    padding: 2rem;
+    background: var(--color-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.table-card{
+    width: 100%;
+}
+
 
 .page-header {
     display: flex;

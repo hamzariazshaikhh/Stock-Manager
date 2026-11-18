@@ -6,7 +6,33 @@
     --accent-color: #2563eb;
     --border-color: #cbd5e1;
     --header-text: #1e293b;
+
+/* NEW — Typography */
+    --font-family-base: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-size-sm: 0.85rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.25rem;
+    --font-size-xl: 1.75rem;
+
+    /* NEW — Spacing */
+    --spacing-1: 0.25rem;
+    --spacing-2: 0.5rem;
+    --spacing-3: 0.75rem;
+    --spacing-4: 1rem;
+    --spacing-6: 1.5rem;
+    --spacing-8: 2rem;
+
+    /* NEW — Radius / Shadow / Motion */
+    --radius-sm: 4px;
+    --radius: 8px;
+    --radius-pill: 999px;
+    --shadow-sm: 0 1px 2px rgb(15 23 42 / 6%);
+    --shadow: 0 4px 12px rgb(15 23 42 / 8%);
+    --shadow-lg: 0 12px 32px rgb(15 23 42 / 14%);
+    --transition-fast: 150ms ease;
+    --transition-base: 250ms ease;
 }
+
 
 [data-theme='dark'] {
     /* Dark Mode */
@@ -16,6 +42,12 @@
     --accent-color: #60a5fa;
     --border-color: #334155;
     --header-text: #f8fafc;
+
+
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 30%);
+    --shadow: 0 4px 12px rgb(0 0 0 / 40%);
+    --shadow-lg: 0 12px 32px rgb(0 0 0 / 50%);
+
 }
 
 /* GLOBAL FORCE: This ensures every element respects the variables */

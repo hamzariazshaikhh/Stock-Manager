@@ -9,52 +9,19 @@ $flash = getFlash();
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= e($pageTitle) ?> - <?= e(APP_NAME) ?></title>
 
-    <link
-        rel="stylesheet"
-        href="<?= e(BASE_URL) ?>/assets/css/app.css"
-    >
+    <link rel="stylesheet" href="<?= e(BASE_URL) ?>/assets/css/reset.css">
+    <link rel="stylesheet" href="<?= e(BASE_URL) ?>/assets/css/variables.css">
+    <link rel="stylesheet" href="<?= e(BASE_URL) ?>/assets/css/layout.css">
+    <link rel="stylesheet" href="<?= e(BASE_URL) ?>/assets/css/app.css">
 
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <!-- Chart.js Library CDN -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 </head>
 
-
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        <?= e($pageTitle) ?> - <?= e(APP_NAME) ?>
-    </title>
-
-    <link
-        rel="stylesheet"
-        href="<?= e(BASE_URL) ?>/assets/css/reset.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="<?= e(BASE_URL) ?>/assets/css/variables.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="<?= e(BASE_URL) ?>/assets/css/layout.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="<?= e(BASE_URL) ?>/assets/css/app.css"
-    >
-</head>
 
 <body>
 <header class="site-header">

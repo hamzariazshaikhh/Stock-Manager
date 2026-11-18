@@ -18,6 +18,8 @@ const PERMISSION_VIEW_STOCK = 'view_stock';
 const PERMISSION_MANAGE_STOCK = 'manage_stock';
 const PERMISSION_MANAGE_USERS = 'manage_users';
 
+const PERMISSION_VIEW_REPORTS = 'view_reports';
+
 function rolePermissions(): array
 {
     return [
