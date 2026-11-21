@@ -9,8 +9,16 @@ final class DashboardRepository
     ) {
     }
 
-    public function countProductsByUser(int $userId): int
+    public function countProductsByUser(int $userId, bool $isOwner = false): int
     {
+        if ($isOwner) {
+            return (int) $this->pdo->query(
+                'SELECT COUNT(*)
+                 FROM products
+                 WHERE deleted_at IS NULL'
+            )->fetchColumn();
+        }
+
         return $this->fetchCount(
             'SELECT COUNT(*)
              FROM products
@@ -20,8 +28,15 @@ final class DashboardRepository
         );
     }
 
-    public function countCategoriesByUser(int $userId): int
+    public function countCategoriesByUser(int $userId, bool $isOwner = false): int
     {
+        if ($isOwner) {
+            return (int) $this->pdo->query(
+                'SELECT COUNT(*)
+                 FROM categories'
+            )->fetchColumn();
+        }
+
         return $this->fetchCount(
             'SELECT COUNT(*)
              FROM categories
@@ -30,8 +45,15 @@ final class DashboardRepository
         );
     }
 
-    public function countSuppliersByUser(int $userId): int
+    public function countSuppliersByUser(int $userId, bool $isOwner = false): int
     {
+        if ($isOwner) {
+            return (int) $this->pdo->query(
+                'SELECT COUNT(*)
+                 FROM suppliers'
+            )->fetchColumn();
+        }
+
         return $this->fetchCount(
             'SELECT COUNT(*)
              FROM suppliers
@@ -40,8 +62,18 @@ final class DashboardRepository
         );
     }
 
-    public function totalStockByUser(int $userId): int
+    public function totalStockByUser(int $userId, bool $isOwner = false): int
     {
+        if ($isOwner) {
+            $statement = $this->pdo->query(
+                'SELECT COALESCE(SUM(quantity), 0)
+                 FROM products
+                 WHERE deleted_at IS NULL'
+            );
+
+            return (int) $statement->fetchColumn();
+        }
+
         $statement = $this->pdo->prepare(
             'SELECT COALESCE(SUM(quantity), 0)
              FROM products
@@ -56,8 +88,17 @@ final class DashboardRepository
         return (int) $statement->fetchColumn();
     }
 
-    public function countLowStockProducts(int $userId): int
+    public function countLowStockProducts(int $userId, bool $isOwner = false): int
     {
+        if ($isOwner) {
+            return (int) $this->pdo->query(
+                'SELECT COUNT(*)
+                 FROM products
+                 WHERE deleted_at IS NULL
+                 AND quantity <= reorder_level'
+            )->fetchColumn();
+        }
+
         return $this->fetchCount(
             'SELECT COUNT(*)
              FROM products
@@ -68,8 +109,23 @@ final class DashboardRepository
         );
     }
 
-    public function inventoryValue(int $userId): string
+    public function inventoryValue(int $userId, bool $isOwner = false): string
     {
+        if ($isOwner) {
+            $statement = $this->pdo->query(
+                'SELECT COALESCE(SUM(quantity * unit_price), 0)
+                 FROM products
+                 WHERE deleted_at IS NULL'
+            );
+
+            return number_format(
+                (float) $statement->fetchColumn(),
+                2,
+                '.',
+                ','
+            );
+        }
+
         $statement = $this->pdo->prepare(
             'SELECT COALESCE(SUM(quantity * unit_price), 0)
              FROM products
@@ -91,9 +147,33 @@ final class DashboardRepository
 
     public function recentMovements(
         int $userId,
-        int $limit = 5
+        int $limit = 5,
+        bool $isOwner = false
     ): array {
         $limit = max(1, min($limit, 20));
+
+        if ($isOwner) {
+            $statement = $this->pdo->prepare(
+                "SELECT
+                    sm.id,
+                    sm.movement_type,
+                    sm.quantity_change,
+                    sm.quantity_before,
+                    sm.quantity_after,
+                    sm.note,
+                    sm.created_at,
+                    p.name AS product_name,
+                    p.sku
+                 FROM stock_movements sm
+                 INNER JOIN products p
+                    ON p.id = sm.product_id
+                   AND p.deleted_at IS NULL
+                 ORDER BY sm.created_at DESC, sm.id DESC
+                 LIMIT {$limit}"
+            );
+            $statement->execute();
+            return $statement->fetchAll();
+        }
 
         $statement = $this->pdo->prepare(
             "SELECT
@@ -135,5 +215,4 @@ final class DashboardRepository
 
         return (int) $statement->fetchColumn();
     }
-
 }

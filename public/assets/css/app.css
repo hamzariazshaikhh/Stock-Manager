@@ -53,7 +53,7 @@ h2 {
 
 .button {
     background-color: var(--accent-color);
-    color: var(--button-text);
+    color: var(--button-text, #ffffff);
     padding: 10px 20px;
     border-radius: 6px;
     border: none;
@@ -96,18 +96,20 @@ h1, h2, h3, p, label {
 }
 
 .button-primary {
-    background: var(--color-primary);
-    color: white;
+    background: var(--accent-color);
+    color: #ffffff;
 }
 
 .button-primary:hover {
-    background: var(--color-primary-dark);
+    background: var(--color-primary-dark, #1d4ed8);
 }
 
 .button-secondary {
-    background: var(--color-secondary);
-    color: white;
+    background: var(--color-secondary, #475569);
+    color: #ffffff;
 }
+
+
 
 .alert {
     margin-bottom: 1rem;
@@ -225,13 +227,14 @@ h1, h2, h3, p, label {
 
 .button-small {
     padding: 0.45rem 0.7rem;
-    background: var(--color-secondary);
-    color: white;
+    background: var(--color-secondary, #475569);
+    color: #ffffff;
     font-size: 0.9rem;
 }
 
 .button-danger {
     background: #b91c1c;
+    color: #ffffff;
 }
 
 .button-danger:hover {
@@ -244,7 +247,7 @@ h1, h2, h3, p, label {
     padding: 0.7rem 0.8rem;
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
-    background: white;
+    background: var(--card-bg);
     font: inherit;
 }
 

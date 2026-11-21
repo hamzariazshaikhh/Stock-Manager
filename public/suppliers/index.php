@@ -10,8 +10,10 @@ requirePermission(PERMISSION_VIEW_SUPPLIERS);
 
 $pdo = getDatabaseConnection();
 
+$isOwner = hasRole(ROLE_OWNER);
+
 $supplierRepository = new SupplierRepository($pdo);
-$suppliers = $supplierRepository->findAllByUser($userId);
+$suppliers = $supplierRepository->findAllByUser($userId, $isOwner);
 
 $pageTitle = 'Suppliers';
 $activePage = 'suppliers';
@@ -64,6 +66,7 @@ require_once __DIR__ . '/../../app/views/layout/header.php';
                         <th>Email</th>
                         <th>Phone</th>
                         <th>Address</th>
+                        <th>Added By</th>
                         <th class="actions-column">Actions</th>
                     </tr>
                 </thead>
@@ -75,6 +78,7 @@ require_once __DIR__ . '/../../app/views/layout/header.php';
                             <td><?= e($supplier['email'] ?? '') ?></td>
                             <td><?= e($supplier['phone'] ?? '') ?></td>
                             <td><?= e($supplier['address'] ?? '') ?></td>
+                            <td><?= e($supplier['user_email'] ?? '') ?></td>
                             <td class="actions">
                                 <a
                                     class="button button-small"

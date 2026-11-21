@@ -58,7 +58,8 @@ final class CategoryService
     public function update(
         int $categoryId,
         string $name,
-        int $userId
+        int $userId,
+        bool $isOwner = false
     ): array {
         $name = trim($name);
         $errors = $this->validateName($name);
@@ -69,7 +70,8 @@ final class CategoryService
 
         $category = $this->repository->findByIdForUser(
             $categoryId,
-            $userId
+            $userId,
+            $isOwner    
         );
 
         if ($category === null) {
@@ -89,7 +91,8 @@ final class CategoryService
         $this->repository->update(
             $categoryId,
             $userId,
-            $name
+            $name,
+            $isOwner
         );
 
         // Log action
@@ -106,12 +109,15 @@ final class CategoryService
 
     public function delete(
         int $categoryId,
-        int $userId
+        int $userId,
+        bool $isOwner = false
+
     ): bool {
 
         $deleted = $this->repository->delete(
             $categoryId,
-            $userId
+            $userId,
+            $isOwner
         );
 
         if ($deleted) {

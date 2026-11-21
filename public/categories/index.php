@@ -8,8 +8,10 @@ $userId = requireAuth();
 requirePermission(PERMISSION_VIEW_CATEGORIES);
 $pdo = getDatabaseConnection();
 
+$isOwner = hasRole(ROLE_OWNER);
+
 $repository = new CategoryRepository($pdo);
-$categories = $repository->findAllByUser($userId);
+$categories = $repository->findAllByUser($userId, $isOwner);
 
 $pageTitle = 'Categories';
 $activePage = 'categories';
@@ -61,6 +63,7 @@ require_once __DIR__ . '/../../app/views/layout/header.php';
                     <tr>
                         <th>Name</th>
                         <th>Created</th>
+                        <th>Added By</th>
                         <th class="actions-column">Actions</th>
                     </tr>
                 </thead>
@@ -71,6 +74,9 @@ require_once __DIR__ . '/../../app/views/layout/header.php';
                             <td><?= e($category['name']) ?></td>
                             <td>
                                 <?= e($category['created_at']) ?>
+                            </td>
+                            <td>
+                                <?= e($category['user_email'] ?? '') ?>
                             </td>
                             <td class="actions">
                                 <a

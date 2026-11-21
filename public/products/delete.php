@@ -4,6 +4,10 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../app/bootstrap.php';
 
 $userId = requireAuth();
+
+
+$isOwner = hasRole(ROLE_OWNER);
+
 requirePermission(PERMISSION_MANAGE_PRODUCTS);
 
 if (!isPostRequest()) {
@@ -34,7 +38,7 @@ $productService = new ProductService(
 
 // 2. Call the Service method, NOT the Repository directly
 // This triggers the Audit Log we added in the previous step
-$deleted = $productService->delete($productId, $userId);
+$deleted = $productService->delete($productId, $userId, $isOwner);
 
 if (!$deleted) {
     setFlash('error', 'Product not found.');

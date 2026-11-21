@@ -12,6 +12,8 @@ $productRepository = new ProductRepository($pdo);
 $perPage = 25;
 $page = currentPage();
 
+$isOwner = hasRole(ROLE_OWNER);
+
 $totalProducts = $productRepository->countByUser($userId);
 $totalPages = totalPages($totalProducts, $perPage);
 $page = min($page, $totalPages);
@@ -19,7 +21,8 @@ $page = min($page, $totalPages);
 $products = $productRepository->findPageByUser(
     $userId,
     $perPage,
-    paginationOffset($page, $perPage)
+    paginationOffset($page, $perPage),
+    $isOwner
 );
 
 $pageTitle = 'Products';
@@ -106,6 +109,7 @@ require __DIR__ . '/../../app/views/partials/pagination.php';
                         <th>Supplier</th>
                         <th>Quantity</th>
                         <th>Price</th>
+                        <th>Added By</th>
                         <th class="actions-column">Actions</th>
                     </tr>
                 </thead>
@@ -148,6 +152,10 @@ require __DIR__ . '/../../app/views/partials/pagination.php';
                                     )
                                 ) ?>
                             </td>
+                            <td>
+                                <?= e($product['user_email']??'') ?>
+                            </td>
+
                             <td class="actions">
 
                             <?php if (hasPermission(PERMISSION_MANAGE_PRODUCTS)): ?>

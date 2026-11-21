@@ -56,11 +56,13 @@ final class ProductService
     public function update(
         int $productId,
         array $input,
-        int $userId
+        int $userId,
+        bool $isOwner = false
     ): array {
         $product = $this->productRepository->findByIdForUser(
             $productId,
-            $userId
+            $userId,
+            $isOwner
         );
 
         if ($product === null) {
@@ -92,7 +94,8 @@ final class ProductService
             $this->productRepository->update(
                 $productId,
                 $userId,
-                $data
+                $data,
+                $isOwner
             );
 
             // Record the activity log
@@ -115,16 +118,16 @@ final class ProductService
         return [];
     }
 
-    public function delete(int $productId, int $userId): bool
+    public function delete(int $productId, int $userId, bool $isOwner = false): bool
     {
-        $product = $this->productRepository->findByIdForUser($productId, $userId);
+        $product = $this->productRepository->findByIdForUser($productId, $userId, $isOwner);
         if ($product === null) {
             return false;
         }
 
         $productName = $product['name'];
         //perform the soft delete
-        $deleted = $this->productRepository->delete($productId, $userId);
+        $deleted = $this->productRepository->delete($productId, $userId, $isOwner);
 
           // 3. If successful, record the action in the audit log
         if ($deleted) {
@@ -169,7 +172,8 @@ final class ProductService
 
     private function validate(
         array $data,
-        int $userId
+        int $userId,
+        bool $isOwner = false
     ): array {
         $errors = [];
 
@@ -232,7 +236,8 @@ final class ProductService
             $data['category_id'] !== null
             && $this->categoryRepository->findByIdForUser(
                 $data['category_id'],
-                $userId
+                $userId,
+                $isOwner
             ) === null
         ) {
             $errors[] = 'Selected category is invalid.';
@@ -242,7 +247,8 @@ final class ProductService
             $data['supplier_id'] !== null
             && $this->supplierRepository->findByIdForUser(
                 $data['supplier_id'],
-                $userId
+                $userId,
+                $isOwner
             ) === null
         ) {
             $errors[] = 'Selected supplier is invalid.';

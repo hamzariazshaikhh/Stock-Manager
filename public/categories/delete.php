@@ -5,6 +5,10 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../app/bootstrap.php';
 
 $userId = requireAuth();
+
+$isOwner = hasRole(ROLE_OWNER);
+
+
 requirePermission(PERMISSION_MANAGE_CATEGORIES);
 
 if (!isPostRequest()) {
@@ -30,7 +34,8 @@ $service = new CategoryService($repository);
 
 $deleted = $service->delete(
     $categoryId,
-    $userId
+    $userId,
+    $isOwner
 );
 
 if (!$deleted) {

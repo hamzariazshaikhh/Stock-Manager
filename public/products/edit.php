@@ -5,6 +5,10 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../app/bootstrap.php';
 
 $userId = requireAuth();
+
+$isOwner = hasRole(ROLE_OWNER);
+
+
 requirePermission(PERMISSION_MANAGE_PRODUCTS);
 $pdo = getDatabaseConnection();
 
@@ -35,7 +39,8 @@ if (
 
 $product = $productRepository->findByIdForUser(
     $productId,
-    $userId
+    $userId,
+    $isOwner
 );
 
 if ($product === null) {
@@ -43,8 +48,8 @@ if ($product === null) {
     redirect('/products/index.php');
 }
 
-$categories = $categoryRepository->findAllByUser($userId);
-$suppliers = $supplierRepository->findAllByUser($userId);
+$categories = $categoryRepository->findAllByUser($userId, $isOwner);
+$suppliers = $supplierRepository->findAllByUser($userId, $isOwner);
 
 $errors = [];
 
@@ -78,7 +83,8 @@ if (isPostRequest()) {
     $errors = $productService->update(
         $productId,
         $formData,
-        $userId
+        $userId,
+        $isOwner
     );
 
     if ($errors === []) {

@@ -14,13 +14,25 @@ final class CategoryRepository
     {
         return $this->pdo;
     }
-    public function findAllByUser(int $userId): array
+    public function findAllByUser(int $userId, bool $isOwner = false): array
     {
+        if ($isOwner) {
+            $statement = $this->pdo->query(
+                'SELECT c.id, c.name, c.created_at, u.email AS user_email, u.name AS user_name
+                 FROM categories c
+                 INNER JOIN users u ON u.id = c.user_id
+                 ORDER BY c.name ASC'
+            );
+            $statement->execute();
+            return $statement->fetchAll();
+        }
+
         $statement = $this->pdo->prepare(
-            'SELECT id, name, created_at
-             FROM categories
-             WHERE user_id = :user_id
-             ORDER BY name ASC'
+            'SELECT c.id, c.name, c.created_at, u.email AS user_email, u.name AS user_name
+             FROM categories c
+             INNER JOIN users u ON u.id = c.user_id
+             WHERE c.user_id = :user_id
+             ORDER BY c.name ASC'
         );
 
         $statement->execute([
@@ -32,8 +44,26 @@ final class CategoryRepository
 
     public function findByIdForUser(
         int $categoryId,
-        int $userId
+        int $userId,
+        bool $isOwner = false
     ): ?array {
+
+        if ($isOwner) {
+            $statement = $this->pdo->prepare(
+                'SELECT id, name, created_at
+                 FROM categories
+                 WHERE id = :category_id
+                 LIMIT 1'
+            );
+
+            $statement->execute([
+                'category_id' => $categoryId,
+            ]);
+
+            $category = $statement->fetch();
+
+            return $category === false ? null : $category;
+        }
         $statement = $this->pdo->prepare(
             'SELECT id, name, created_at
              FROM categories
@@ -103,8 +133,24 @@ final class CategoryRepository
     public function update(
         int $categoryId,
         int $userId,
-        string $name
+        string $name,
+        bool $isOwner = false
     ): bool {
+
+        if ($isOwner) {
+            $statement = $this->pdo->prepare(
+                'UPDATE categories
+                 SET name = :name
+                 WHERE id = :category_id'
+            );
+
+            $statement->execute([
+                'category_id' => $categoryId,
+                'name' => $name,
+            ]);
+
+            return $statement->rowCount() > 0;
+        }
         $statement = $this->pdo->prepare(
             'UPDATE categories
              SET name = :name
@@ -121,8 +167,21 @@ final class CategoryRepository
         return $statement->rowCount() > 0;
     }
 
-    public function delete(int $categoryId, int $userId): bool
+    public function delete(int $categoryId, int $userId, bool $isOwner = false): bool
     {
+
+        if ($isOwner) {
+            $statement = $this->pdo->prepare(
+                'DELETE FROM categories
+                 WHERE id = :category_id'
+            );
+
+            $statement->execute([
+                'category_id' => $categoryId,
+            ]);
+
+            return $statement->rowCount() > 0;
+        }
         $statement = $this->pdo->prepare(
             'DELETE FROM categories
              WHERE id = :category_id

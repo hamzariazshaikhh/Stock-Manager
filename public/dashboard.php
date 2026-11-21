@@ -40,7 +40,11 @@ $dashboardService = new DashboardService(
     $dashboardRepository
 );
 
-$summary = $dashboardService->getSummary($userId);
+
+
+$isOwner = hasRole(ROLE_OWNER);
+
+$summary = $dashboardService->getSummary($userId, $isOwner);
 
 $pageTitle = 'Dashboard';
 $activePage = 'dashboard';

@@ -5,6 +5,10 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../app/bootstrap.php';
 
 $userId = requireAuth();
+
+$isOwner = hasRole(ROLE_OWNER);
+
+
 requirePermission(PERMISSION_MANAGE_SUPPLIERS);
 
 $pdo = getDatabaseConnection();
@@ -29,7 +33,8 @@ if (
 
 $supplier = $supplierRepository->findByIdForUser(
     $supplierId,
-    $userId
+    $userId,
+    $isOwner
 );
 
 if ($supplier === null) {
@@ -59,7 +64,8 @@ if (isPostRequest()) {
     $errors = $supplierService->update(
         $supplierId,
         $formData,
-        $userId
+        $userId,
+        $isOwner
     );
 
     if ($errors === []) {

@@ -14,8 +14,41 @@ final class ProductRepository
         return $this->pdo;
     }
 
-    public function findAllByUser(int $userId): array
+    public function findAllByUser(int $userId, bool $isOwner = false): array
     {
+        if ($isOwner) {
+            $statement = $this->pdo->prepare(
+                'SELECT
+                    p.id,
+                    p.name,
+                    p.sku,
+                    p.description,
+                    p.quantity,
+                    p.reorder_level,
+                    p.unit_price,
+                    p.category_id,
+                    p.supplier_id,
+                    p.created_at,
+                    p.updated_at,
+                    c.name AS category_name,
+                    s.name AS supplier_name
+                 FROM products p
+                 LEFT JOIN categories c
+                    ON c.id = p.category_id
+                   AND c.user_id = p.user_id
+                 LEFT JOIN suppliers s
+                    ON s.id = p.supplier_id
+                   AND s.user_id = p.user_id
+                LEFT JOIN users u
+                    ON u.id = p.user_id
+                 WHERE p.deleted_at IS NULL
+                 ORDER BY p.name ASC, p.id ASC'
+            );
+
+            $statement->execute();
+
+            return $statement->fetchAll();
+        }
         $statement = $this->pdo->prepare(
             'SELECT
                 p.id,
@@ -50,8 +83,17 @@ final class ProductRepository
         return $statement->fetchAll();
     }
 
-    public function countByUser(int $userId): int
+    public function countByUser(int $userId, bool $isOwner = false): int
     {
+        if ($isOwner) {
+            $statement = $this->pdo->query(
+                'SELECT COUNT(*)
+                 FROM products
+                 WHERE deleted_at IS NULL'
+            );
+
+            return (int) $statement->fetchColumn();
+        }
         $statement = $this->pdo->prepare(
             'SELECT COUNT(*)
              FROM products
@@ -69,11 +111,54 @@ final class ProductRepository
     public function findPageByUser(
         int $userId,
         int $limit,
-        int $offset
+        int $offset,
+        bool $isOwner = false
     ): array {
         $limit = max(1, min($limit, 100));
         $offset = max(0, $offset);
 
+        if ($isOwner) {
+            $statement = $this->pdo->prepare(
+                "SELECT
+                    p.id,
+                    p.name,
+                    p.sku,
+                    p.description,
+                    p.quantity,
+                    p.reorder_level,
+                    p.unit_price,
+                    p.category_id,
+                    p.supplier_id,
+                    p.created_at,
+                    p.updated_at,
+                    c.name AS category_name,
+                    s.name AS supplier_name,
+                    u.email AS user_email, u.name AS user_namex
+                 FROM products p
+                 LEFT JOIN categories c
+                    ON c.id = p.category_id
+                   AND c.user_id = p.user_id
+                 LEFT JOIN suppliers s
+                    ON s.id = p.supplier_id
+                   AND s.user_id = p.user_id
+                LEFT JOIN users u
+                    ON u.id = p.user_id
+                 WHERE p.deleted_at IS NULL
+                 ORDER BY p.name ASC, p.id ASC
+                 LIMIT :limit OFFSET :offset"
+            );
+            /*
+            $statement->execute([
+                'limit' => $limit,
+                'offset' => $offset,
+            ]);
+*/
+            $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
+            $statement->execute();
+
+            return $statement->fetchAll();
+        }
         $statement = $this->pdo->prepare(
             "SELECT
                 p.id,
@@ -111,29 +196,73 @@ final class ProductRepository
         return $statement->fetchAll();
     }
 
-    public function findByIdForUser(
-        int $productId,
-        int $userId
-    ): ?array {
+
+public function findByIdForUser(
+    int $productId,
+    int $userId,
+    bool $isOwner = false
+): ?array {
+    if ($isOwner) {
         $statement = $this->pdo->prepare(
             'SELECT
-                id,
-                user_id,
-                category_id,
-                supplier_id,
-                name,
-                sku,
-                description,
-                quantity,
-                reorder_level,
-                unit_price,
-                created_at,
-                updated_at,
-                deleted_at
-             FROM products
-             WHERE id = :product_id
-               AND user_id = :user_id
-               AND deleted_at IS NULL
+                p.id,
+                p.name,
+                p.sku,
+                p.description,
+                p.quantity,
+                p.reorder_level,
+                p.unit_price,
+                p.category_id,
+                p.supplier_id,
+                p.created_at,
+                p.updated_at,
+                c.name AS category_name,
+                s.name AS supplier_name,
+                u.email AS user_email,
+                u.name AS user_name
+             FROM products p
+             LEFT JOIN categories c
+                ON c.id = p.category_id
+               AND c.user_id = p.user_id
+             LEFT JOIN suppliers s
+                ON s.id = p.supplier_id
+               AND s.user_id = p.user_id
+             LEFT JOIN users u
+                ON u.id = p.user_id
+             WHERE p.id = :product_id
+               AND p.deleted_at IS NULL
+             LIMIT 1'
+        );
+
+        $statement->execute([
+            'product_id' => $productId,
+        ]);
+    } else {
+        $statement = $this->pdo->prepare(
+            'SELECT
+                p.id,
+                p.name,
+                p.sku,
+                p.description,
+                p.quantity,
+                p.reorder_level,
+                p.unit_price,
+                p.category_id,
+                p.supplier_id,
+                p.created_at,
+                p.updated_at,
+                c.name AS category_name,
+                s.name AS supplier_name
+             FROM products p
+             LEFT JOIN categories c
+                ON c.id = p.category_id
+               AND c.user_id = p.user_id
+             LEFT JOIN suppliers s
+                ON s.id = p.supplier_id
+               AND s.user_id = p.user_id
+             WHERE p.id = :product_id
+               AND p.user_id = :user_id
+               AND p.deleted_at IS NULL
              LIMIT 1'
         );
 
@@ -141,12 +270,12 @@ final class ProductRepository
             'product_id' => $productId,
             'user_id' => $userId,
         ]);
-
-        $product = $statement->fetch();
-
-        return $product === false ? null : $product;
     }
 
+    $product = $statement->fetch();
+
+    return $product === false ? null : $product;
+}
     public function findByIdForUpdate(
         int $productId,
         int $userId
@@ -160,7 +289,7 @@ final class ProductRepository
              LIMIT 1
              FOR UPDATE'
         );
-
+    
         $statement->execute([
             'product_id' => $productId,
             'user_id' => $userId,
@@ -246,37 +375,60 @@ final class ProductRepository
         return (int) $this->pdo->lastInsertId();
     }
 
-    public function update(
+       public function update(
         int $productId,
         int $userId,
-        array $data
+        array $data,
+        bool $isOwner = false
     ): bool {
-        $statement = $this->pdo->prepare(
-            'UPDATE products
-             SET category_id = :category_id,
-                 supplier_id = :supplier_id,
-                 name = :name,
-                 sku = :sku,
-                 description = :description,
-                 reorder_level = :reorder_level,
-                 unit_price = :unit_price
-             WHERE id = :product_id
-               AND user_id = :user_id
-               AND deleted_at IS NULL'
-        );
+        if ($isOwner) {
+            $sql = 'UPDATE products
+                    SET category_id = :category_id,
+                        supplier_id = :supplier_id,
+                        name = :name,
+                        sku = :sku,
+                        description = :description,
+                        reorder_level = :reorder_level,
+                        unit_price = :unit_price
+                    WHERE id = :product_id
+                      AND deleted_at IS NULL';
+            $params = [
+                'product_id' => $productId,
+                'category_id' => $data['category_id'],
+                'supplier_id' => $data['supplier_id'],
+                'name' => $data['name'],
+                'sku' => $data['sku'],
+                'description' => $data['description'],
+                'reorder_level' => $data['reorder_level'],
+                'unit_price' => $data['unit_price'],
+            ];
+        } else {
+            $sql = 'UPDATE products
+                    SET category_id = :category_id,
+                        supplier_id = :supplier_id,
+                        name = :name,
+                        sku = :sku,
+                        description = :description,
+                        reorder_level = :reorder_level,
+                        unit_price = :unit_price
+                    WHERE id = :product_id
+                      AND user_id = :user_id
+                      AND deleted_at IS NULL';
+            $params = [
+                'product_id' => $productId,
+                'user_id' => $userId,
+                'category_id' => $data['category_id'],
+                'supplier_id' => $data['supplier_id'],
+                'name' => $data['name'],
+                'sku' => $data['sku'],
+                'description' => $data['description'],
+                'reorder_level' => $data['reorder_level'],
+                'unit_price' => $data['unit_price'],
+            ];
+        }
 
-        $statement->execute([
-            'product_id' => $productId,
-            'user_id' => $userId,
-            'category_id' => $data['category_id'],
-            'supplier_id' => $data['supplier_id'],
-            'name' => $data['name'],
-            'sku' => $data['sku'],
-            'description' => $data['description'],
-            'reorder_level' => $data['reorder_level'],
-            'unit_price' => $data['unit_price'],
-        ]);
-
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute($params);
         return $statement->rowCount() > 0;
     }
 
@@ -302,21 +454,28 @@ final class ProductRepository
         return $statement->rowCount() > 0;
     }
 
-    public function delete(int $productId, int $userId): bool
-     {
-        $statement = $this->pdo->prepare(
-            'UPDATE products
-             SET deleted_at = CURRENT_TIMESTAMP
-             WHERE id = :product_id
-               AND user_id = :user_id
-               AND deleted_at IS NULL'
-        );
+      public function delete(int $productId, int $userId, bool $isOwner = false): bool
+    {
+        if ($isOwner) {
+            $sql = 'UPDATE products
+                    SET deleted_at = CURRENT_TIMESTAMP
+                    WHERE id = :product_id
+                      AND deleted_at IS NULL';
+            $params = ['product_id' => $productId];
+        } else {
+            $sql = 'UPDATE products
+                    SET deleted_at = CURRENT_TIMESTAMP
+                    WHERE id = :product_id
+                      AND user_id = :user_id
+                      AND deleted_at IS NULL';
+            $params = [
+                'product_id' => $productId,
+                'user_id' => $userId,
+            ];
+        }
 
-        return $statement->execute([
-            'product_id' => $productId,
-            'user_id' => $userId,
-        ]);
-
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute($params);
         return $statement->rowCount() > 0;
     }
 }

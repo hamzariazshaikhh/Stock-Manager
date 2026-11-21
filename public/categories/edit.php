@@ -6,6 +6,10 @@ require_once __DIR__ . '/../../app/bootstrap.php';
 
 
 $userId = requireAuth();
+
+$isOwner = hasRole(ROLE_OWNER);
+
+
 requirePermission(PERMISSION_MANAGE_CATEGORIES);
 $pdo = getDatabaseConnection();
 
@@ -25,7 +29,8 @@ if ($categoryId === false || $categoryId === null || $categoryId < 1) {
 
 $category = $repository->findByIdForUser(
     $categoryId,
-    $userId
+    $userId,
+    $isOwner
 );
 
 if ($category === null) {
@@ -44,7 +49,8 @@ if (isPostRequest()) {
     $errors = $service->update(
         $categoryId,
         $name,
-        $userId
+        $userId,
+        $isOwner
     );
 
     if ($errors === []) {

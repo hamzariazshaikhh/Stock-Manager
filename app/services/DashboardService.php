@@ -8,30 +8,18 @@ final class DashboardService
         private readonly DashboardRepository $repository
     ) {
     }
+public function getSummary(int $userId, bool $isOwner = false): array
+{
+    return [
+        'product_count' => $this->repository->countProductsByUser($userId, $isOwner),
+        'category_count' => $this->repository->countCategoriesByUser($userId, $isOwner),
+        'supplier_count' => $this->repository->countSuppliersByUser($userId, $isOwner),
+        'total_stock' => $this->repository->totalStockByUser($userId, $isOwner),
+        'low_stock_count' => $this->repository->countLowStockProducts($userId, $isOwner),
+        'inventory_value' => $this->repository->inventoryValue($userId, $isOwner),
+        'recent_movements' => $this->repository->recentMovements($userId, 5, $isOwner),
+    ];
+}
 
-    public function getSummary(int $userId): array
-    {
-        return [
-            'product_count' => $this->repository
-                ->countProductsByUser($userId),
 
-            'category_count' => $this->repository
-                ->countCategoriesByUser($userId),
-
-            'supplier_count' => $this->repository
-                ->countSuppliersByUser($userId),
-
-            'total_stock' => $this->repository
-                ->totalStockByUser($userId),
-
-            'low_stock_count' => $this->repository
-                ->countLowStockProducts($userId),
-
-            'inventory_value' => $this->repository
-                ->inventoryValue($userId),
-
-            'recent_movements' => $this->repository
-                ->recentMovements($userId),
-        ];
-    }
 }
